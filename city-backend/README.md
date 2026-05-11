@@ -57,6 +57,22 @@ flask run
 
 Default port is `5000` (override with `PORT` in `.env`).
 
+## Production (Gunicorn / Render)
+
+The WSGI entry module is `run.py`, which exposes a top-level `app` instance. Run with Gunicorn:
+
+```bash
+gunicorn run:app
+```
+
+On [Render](https://render.com), set the **Start Command** to bind to the host and port Render provides:
+
+```bash
+gunicorn run:app --bind 0.0.0.0:$PORT
+```
+
+(Ensure `requirements.txt` includes `gunicorn`, and set `FLASK_ENV=production` and `DATABASE_URL` in the service environment.)
+
 ## API
 
 | Method | Path | Description |

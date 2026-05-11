@@ -1,3 +1,4 @@
+# WSGI entry for Gunicorn / Render: `gunicorn run:app --bind 0.0.0.0:$PORT`
 import os
 
 from dotenv import load_dotenv
