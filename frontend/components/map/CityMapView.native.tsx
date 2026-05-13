@@ -36,10 +36,23 @@ export function CityMapView() {
   const [visibility, setVisibility] = useState<Record<CityMapLayerId, boolean>>(defaultLayerVisibility);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [mapRenderKey, setMapRenderKey] = useState(0);
 
   useEffect(() => {
     console.log('[Map] screen mounted');
   }, []);
+
+  useEffect(() => {
+    if (mapReady || mapError) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setMapError('Map loading timed out. Please try again.');
+    }, 20000);
+
+    return () => clearTimeout(timeout);
+  }, [mapReady, mapError]);
 
   const panelRows = useMemo(
     () =>
@@ -54,6 +67,7 @@ export function CityMapView() {
   return (
     <View style={styles.wrap}>
       <MapView
+        key={mapRenderKey}
         style={styles.map}
         styleURL={MAP_STYLE_URL}
         scaleBarEnabled={false}
@@ -154,7 +168,15 @@ export function CityMapView() {
         <View style={styles.stateOverlay} pointerEvents="auto">
           <Text style={styles.stateTitle}>{mapError ? 'Map failed to load' : configured ? 'Could not load layers' : 'API URL missing'}</Text>
           <Text style={styles.stateBody}>{mapError ?? error}</Text>
-          <Pressable style={styles.retryBtn} onPress={() => void reload()}>
+          <Pressable
+            style={styles.retryBtn}
+            onPress={() => {
+              setMapError(null);
+              setMapReady(false);
+              setMapRenderKey((prev) => prev + 1);
+              void reload();
+            }}
+          >
             <Text style={styles.retryLabel}>Retry</Text>
           </Pressable>
         </View>
