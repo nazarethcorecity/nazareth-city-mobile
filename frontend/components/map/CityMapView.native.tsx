@@ -13,7 +13,7 @@ import {
   MapView,
   ShapeSource,
 } from '@rnmapbox/maps';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -34,6 +34,12 @@ const LAYER_LABELS: Record<CityMapLayerId, string> = {
 export function CityMapView() {
   const { data, loading, error, reload, configured } = useCityMapLayers();
   const [visibility, setVisibility] = useState<Record<CityMapLayerId, boolean>>(defaultLayerVisibility);
+  const [mapReady, setMapReady] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log('[Map] screen mounted');
+  }, []);
 
   const panelRows = useMemo(
     () =>
@@ -47,7 +53,19 @@ export function CityMapView() {
 
   return (
     <View style={styles.wrap}>
-      <MapView style={styles.map} styleURL={MAP_STYLE_URL} scaleBarEnabled={false}>
+      <MapView
+        style={styles.map}
+        styleURL={MAP_STYLE_URL}
+        scaleBarEnabled={false}
+        onDidFinishLoadingStyle={() => {
+          setMapReady(true);
+          setMapError(null);
+        }}
+        onDidFailLoadingMap={(event) => {
+          const message = event.nativeEvent?.message ?? 'Map failed to load';
+          setMapError(message);
+        }}
+      >
         <Camera centerCoordinate={NAZARETH_CENTER} zoomLevel={DEFAULT_MAP_ZOOM} animationMode="none" />
         {data ? (
           <>
@@ -118,6 +136,13 @@ export function CityMapView() {
         </View>
       ) : null}
 
+      {!mapReady && !mapError ? (
+        <View style={styles.stateOverlay} pointerEvents="none">
+          <ActivityIndicator size="large" color={palette.primary} />
+          <Text style={styles.stateTitle}>Loading map…</Text>
+        </View>
+      ) : null}
+
       {loading ? (
         <View style={styles.stateOverlay} pointerEvents="auto">
           <ActivityIndicator size="large" color={palette.primary} />
@@ -125,10 +150,10 @@ export function CityMapView() {
         </View>
       ) : null}
 
-      {!loading && error ? (
+      {!loading && (error || mapError) ? (
         <View style={styles.stateOverlay} pointerEvents="auto">
-          <Text style={styles.stateTitle}>{configured ? 'Could not load layers' : 'API URL missing'}</Text>
-          <Text style={styles.stateBody}>{error}</Text>
+          <Text style={styles.stateTitle}>{mapError ? 'Map failed to load' : configured ? 'Could not load layers' : 'API URL missing'}</Text>
+          <Text style={styles.stateBody}>{mapError ?? error}</Text>
           <Pressable style={styles.retryBtn} onPress={() => void reload()}>
             <Text style={styles.retryLabel}>Retry</Text>
           </Pressable>

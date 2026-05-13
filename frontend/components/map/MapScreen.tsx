@@ -6,11 +6,16 @@ import { palette } from '@/constants/theme';
 import { useAuth } from '@/store/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function MapScreen() {
   const insets = useSafeAreaInsets();
   const { signOut } = useAuth();
+
+  useEffect(() => {
+    console.log(`[Map] token exists: ${MAPBOX_ACCESS_TOKEN ? 'yes' : 'no'}`);
+  }, []);
 
   if (!MAPBOX_ACCESS_TOKEN && Platform.OS !== 'web') {
     return (

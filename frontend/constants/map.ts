@@ -3,10 +3,10 @@
  * When `true`, neighborhoods, buildings, streets, and city-feed GeoJSON are
  * fetched from `EXPO_PUBLIC_API_URL` (typically backed by PostgreSQL).
  */
-export const LOAD_BACKEND_MAP_LAYERS = false;
+export const LOAD_BACKEND_MAP_LAYERS = true;
 
 /** Nazareth, Israel — Mapbox order is [longitude, latitude]. */
-export const NAZARETH_CENTER: [number, number] = [35.3037, 32.6996];
+export const NAZARETH_CENTER: [number, number] = [35.3035, 32.6996];
 
 export const DEFAULT_MAP_ZOOM = 13;
 

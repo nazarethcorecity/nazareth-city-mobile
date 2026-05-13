@@ -25,6 +25,7 @@ export function LoginScreen() {
     setLoading(true);
     try {
       await signIn();
+      console.log('[Auth] login success');
       router.replace('/map');
     } finally {
       setLoading(false);
