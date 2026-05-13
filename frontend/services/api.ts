@@ -9,7 +9,9 @@ function normalizeBaseUrl(raw: string | undefined): string {
 }
 
 export function getApiBaseUrl(): string {
-  return normalizeBaseUrl(process.env.EXPO_PUBLIC_API_URL);
+  const base = normalizeBaseUrl(process.env.EXPO_PUBLIC_API_URL);
+  console.log(`[API] base URL: ${base || '(missing)'}`);
+  return base;
 }
 
 export function requireApiBaseUrl(): string {
@@ -23,6 +25,7 @@ export function requireApiBaseUrl(): string {
 async function fetchFeatureCollection(path: string, label: string): Promise<FeatureCollection> {
   const base = requireApiBaseUrl();
   const url = `${base}${path.startsWith('/') ? path : `/${path}`}`;
+  console.log(`[API] GET ${url}`);
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`${label} failed (${res.status})`);

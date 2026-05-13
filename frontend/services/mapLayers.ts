@@ -64,12 +64,19 @@ export async function loadCityMapLayers(): Promise<CityMapLayerData> {
     fetchCityFeed(),
   ]);
 
-  return {
+  const sanitized = {
     neighborhoods: sanitizeFeatureCollection(neighborhoods),
     buildings: sanitizeFeatureCollection(buildings),
     streets: sanitizeFeatureCollection(streets),
     cityFeed: pointsOnlyFeatureCollection(sanitizeFeatureCollection(cityFeed)),
   };
+
+  console.log(`[MapLayers] neighborhoods: ${sanitized.neighborhoods.features.length} features`);
+  console.log(`[MapLayers] buildings: ${sanitized.buildings.features.length} features`);
+  console.log(`[MapLayers] streets: ${sanitized.streets.features.length} features`);
+  console.log(`[MapLayers] reports: ${sanitized.cityFeed.features.length} features`);
+
+  return sanitized;
 }
 
 export type UseCityMapLayersResult = {
@@ -97,7 +104,7 @@ export function useCityMapLayers(): UseCityMapLayersResult {
 
     if (!getApiBaseUrl()) {
       setLoading(false);
-      setError('EXPO_PUBLIC_API_URL is not set');
+      setError('Backend unavailable: check EXPO_PUBLIC_API_URL');
       setData(null);
       return;
     }
@@ -106,8 +113,10 @@ export function useCityMapLayers(): UseCityMapLayersResult {
     setError(null);
     try {
       const layers = await loadCityMapLayers();
+      console.log('[MapLayers] backend fetch success');
       setData(layers);
     } catch (e) {
+      console.log('[MapLayers] backend fetch failure');
       setData(null);
       setError(e instanceof Error ? e.message : 'Could not load map layers');
     } finally {
